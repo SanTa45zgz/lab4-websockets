@@ -56,14 +56,28 @@ public class ElizaServerTest {
 	}
 
 	@Test(timeout = 1000)
-	@Ignore
 	public void onChat() throws DeploymentException, IOException, URISyntaxException, InterruptedException {
-		// COMPLETE ME!!
 		List<String> list = new ArrayList<>();
 		ClientEndpointConfig configuration = ClientEndpointConfig.Builder.create().build();
 		ClientManager client = ClientManager.createClient();
-		client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI("ws://localhost:8025/websockets/eliza"));
-		// COMPLETE ME!!
+        Session session = client.connectToServer(new ElizaEndpointToComplete(list), configuration, new URI("ws://localhost:8025/websockets/eliza"));
+        
+        // The list is empty, we have not started the chat yet.
+        assertEquals(0, list.size());
+
+        // Send the message to the server
+        session.getAsyncRemote().sendText("I think we're doing a great job");
+
+        Thread.sleep(100);
+
+        // Check size and messages received
+        assertEquals(5, list.size());
+        assertEquals("---", list.get(2));
+
+        // We receive the correct message
+        assertEquals("Do you really think so?", list.get(3));
+        assertEquals("---", list.get(4));
+		
 	}
 
 	@After
@@ -100,8 +114,6 @@ public class ElizaServerTest {
         @Override
         public void onOpen(Session session, EndpointConfig config) {
 
-            // COMPLETE ME!!!
-
             session.addMessageHandler(new ElizaMessageHandlerToComplete());
         }
 
@@ -110,7 +122,6 @@ public class ElizaServerTest {
             @Override
             public void onMessage(String message) {
                 list.add(message);
-                // COMPLETE ME!!!
             }
         }
     }
